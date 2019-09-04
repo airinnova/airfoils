@@ -35,7 +35,7 @@ DATA_TOLERANCE = 1e-3
 
 
 class FileInputFormatError(Exception):
-    """Raised if file input data is not formatted correctly."""
+    """Raised if file input data is not formatted correctly"""
 
     pass
 
