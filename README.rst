@@ -25,7 +25,18 @@
 Examples
 --------
 
-TODO
+**NACA 4-series airfoils**
+
+.. code:: python
+
+    >>> from airfoils import Airfoil
+    >>> naca4412 = Airfoil.NACA4('4412')
+    >>> naca4412.plot()
+    >>>
+
+.. image:: https://raw.githubusercontent.com/airinnova/airfoils/master/docs/source/_static/images/example.png
+    :target: https://github.com/airinnova/airfoils
+    :alt: Example
 
 Installation
 ------------

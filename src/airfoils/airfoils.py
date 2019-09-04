@@ -231,32 +231,26 @@ class Airfoil:
         Plot the airfoil and camber line
         """
 
-        points = 'points'
-        camber = 'camber'
-
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         ax.set_xlim([0, 1])
-        ax.set_xlabel('xsi')
-        ax.set_ylabel('eta')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
         ax.axis('equal')
         ax.grid()
-
-        if points in args:
-            ax.plot(self.all_points[0, :], self.all_points[1, :], '.', color='grey')
 
         ax.plot(self.x_upper, self.y_upper, '-', color='blue')
         ax.plot(self.x_lower, self.y_lower, '-', color='green')
 
-        if camber in args:
+        if 'points' in args:
+            ax.plot(self.all_points[0, :], self.all_points[1, :], '.', color='grey')
+
+        if 'camber' in args:
             xsi = np.linspace(0, 1, 100)
             ax.plot(xsi, self.camber_line(xsi), '--', color='red')
 
-        if plot_for_seconds is not None:
-            plt.pause(plot_for_seconds)
-            plt.show(block=False)
-        else:
-            plt.show()
+        plt.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.98, wspace=None, hspace=None)
+        plt.show()
 
     def camber_line(self, xsi):
         """
