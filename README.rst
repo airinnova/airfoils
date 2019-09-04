@@ -20,6 +20,11 @@
 
 |
 
+.. image:: https://raw.githubusercontent.com/airinnova/airfoils/master/docs/source/_static/images/logo.png
+    :alt: Airfoils
+    :width: 100 px
+    :scale: 100 %
+
 *Airfoils* is a small Python library for object-oriented airfoil modelling. Airfoil objects can be imported from files. Airfoil definitions hosted on the `UIUC Airfoil Coordinates Database <https://m-selig.ae.illinois.edu/ads/coord_database.html>`_ are supported. Alternatively, airfoil objects can be instantiated from a NACA-4-series definition.
 
 .. figure:: https://raw.githubusercontent.com/airinnova/airfoils/master/docs/source/_static/images/airfoil_nomenclature.svg?sanitize=true
