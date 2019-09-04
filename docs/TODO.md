@@ -5,7 +5,6 @@
 
 ## Testing
 * Thorough testing of NACA airfoil generator
-* Add test cases for UIUC files
 
 ## New features
 * Implement generator for for NACA 6-digit series (etc.) and user input

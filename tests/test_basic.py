@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from airfoils import Airfoil
+import airfoils.__version__ as v
 
 X_UPPER = [0, 0.1, 0.5, 1]
 Y_UPPER = [0, 0.3, 0.2, 0]
@@ -17,6 +18,15 @@ LOWER = np.array([X_LOWER, Y_LOWER])
 @pytest.fixture
 def airfoil():
     return Airfoil(UPPER, LOWER)
+
+
+def test_version():
+    """
+    Version
+    """
+
+    assert isinstance(v.VERSION, tuple)
+    assert isinstance(v.__version__, str)
 
 
 def test_str_and_repr(airfoil):

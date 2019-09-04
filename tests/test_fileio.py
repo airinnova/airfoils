@@ -3,6 +3,9 @@
 
 import os
 import glob
+from pathlib import Path
+
+import pytest
 
 import airfoils.fileio as io
 
@@ -60,3 +63,17 @@ def test_uiuc_imports():
             continue
 
         upper, lower = io.import_airfoil_data(airfoil_file)
+
+
+def test_empty_file():
+    """
+    Import of empty file must raise an error
+    """
+
+    empty_file = Path('empty.dat')
+    empty_file.touch()
+
+    with pytest.raises(io.FileInputFormatError):
+        io.import_airfoil_data(empty_file)
+
+    os.remove(empty_file)

@@ -29,8 +29,11 @@ Developed for Airinnova AB, Stockholm, Sweden.
 import re
 import numpy as np
 
+# Format identifiers
+FORMAT_1 = 'format_1'
+FORMAT_2 = 'format_2'
 
-# If x value deviates from 0 or 1 in this range, it is set to 0 or 1
+# If x-value deviates from 0 or 1 in this range, it is set to 0 or 1
 DATA_TOLERANCE = 1e-3
 
 
@@ -45,30 +48,25 @@ def import_airfoil_data(file_name):
     Import airfoil data from a text file
 
     Args:
-        :file_name: (str) file name
+        :file_name: File name (string)
 
     Returns:
-        :upper: upper airfoil coordinates
-        :lower: lower airfoil coordinates
+        :upper: Upper airfoil coordinates
+        :lower: Lower airfoil coordinates
     """
 
-    # TRY TO DETERMINE THE FILE FORMAT
-    file_format = None
-
-    format_1 = 'format_1'
-    format_2 = 'format_2'
-
     import_functions = {
-        format_1: import_format_1,
-        format_2: import_format_2,
+        FORMAT_1: _import_format_1,
+        FORMAT_2: _import_format_2,
     }
 
+    # ----- Determine the file format -----
+    file_format = None
     with open(file_name, 'r') as infile:
         for line_nr, line in enumerate(infile):
 
             if line_nr == 0:
                 continue
-
             if line_nr == 2:
                 break
 
@@ -78,29 +76,29 @@ def import_airfoil_data(file_name):
                 data = np.fromstring(line, sep=' ')
 
                 if data[0] > 2:
-                    file_format = format_2
+                    file_format = FORMAT_2
                 else:
-                    file_format = format_1
+                    file_format = FORMAT_1
             except:
                 # Fallback on format 1
-                file_format = format_1
+                file_format = FORMAT_1
 
-    # TRY TO IMPORT
+    # ----- Try to import the file -----
     if file_format is not None:
         upper, lower = import_functions[file_format](file_name)
     else:
-        raise FileInputFormatError("File format not recognised")
+        raise FileInputFormatError("Input file not recognised as valid airfoil file")
 
     return upper, lower
 
 
-def import_format_1(file_name):
+def _import_format_1(file_name):
     """
     Import airfoil data from a text file (format 1)
 
     FILE FORMAT:
         * First row is name of airfoil or comment
-        * Columns for x, y coordinates
+        * Columns for x- and y-coordinates
         * Data typically starts at x = 1
 
     Note:
@@ -108,11 +106,11 @@ def import_format_1(file_name):
         * Lines not starting with a number are ignored
 
     Args:
-        :file_name: (str) file name
+        :file_name: File name (string)
 
     Returns:
-        :upper: upper airfoil coordinates
-        :lower: lower airfoil coordinates
+        :upper: Upper airfoil coordinates
+        :lower: Lower airfoil coordinates
     """
 
     line_with_text = re.compile("^[a-z]", flags=re.IGNORECASE)
@@ -120,14 +118,11 @@ def import_format_1(file_name):
 
     x = []
     y = []
-
     with open(file_name, 'r') as infile:
         for line_nr, line in enumerate(infile):
             line = line.strip()
 
-            if not line or \
-                    line_with_text.match(line) or \
-                    line_with_not_number.match(line):
+            if not line or line_with_text.match(line) or line_with_not_number.match(line):
                 continue
 
             xy = np.fromstring(line, sep=' ')
@@ -195,7 +190,7 @@ def import_format_1(file_name):
     return upper, lower
 
 
-def import_format_2(file_name):
+def _import_format_2(file_name):
     """
     Import airfoil data from a text file (format 2)
 
@@ -209,11 +204,11 @@ def import_format_2(file_name):
         * Empty lines are ignored
 
     Args:
-        :file_name: (str) file name
+        :file_name: File name (string)
 
     Returns:
-        :upper: upper airfoil coordinates
-        :lower: lower airfoil coordinates
+        :upper: Upper airfoil coordinates
+        :lower: Lower airfoil coordinates
     """
 
     x_upper = []
