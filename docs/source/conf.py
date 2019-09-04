@@ -79,7 +79,7 @@ rst_prolog = f"""
 .. |name_bold| replace:: **{NAME}**
 .. _Airinnova: http://airinnova.se/
 .. _Airinnova AB: http://airinnova.se/
-.. _PyPI: https://pypi.org/
+.. _PyPI: https://pypi.org/project/airfoils/
 .. _pip: https://pip.pypa.io/en/stable/
 .. |author1| replace:: {AUTHOR_LIST[0]}
 .. |license| replace:: {LICENCE_NAME}

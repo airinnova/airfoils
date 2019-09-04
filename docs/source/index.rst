@@ -1,10 +1,21 @@
 Welcome to |name|'s documentation!
 ==================================
 
-Introduction
-------------
+*Airfoils* is a small Python library for object-oriented airfoil modelling. Airfoil objects can be imported from files. Airfoil definitions hosted on the `UIUC Airfoil Coordinates Database <https://m-selig.ae.illinois.edu/ads/coord_database.html>`_ are supported. Alternatively, airfoil objects can be instantiated from a NACA-4-series definition.
 
-TODO
+Example
+-------
+
+.. code:: python
+
+    >>> from airfoils import Airfoil
+    >>> naca4412 = Airfoil.NACA4('4412')
+    >>> naca4412.plot()
+
+.. image:: _static/images/example.png
+    :width: 600 px
+    :target: https://github.com/airinnova/airfoils
+    :alt: Example
 
 .. toctree::
    :maxdepth: 2
