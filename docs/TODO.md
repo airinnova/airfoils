@@ -5,3 +5,4 @@
 * Thorough testing of NACA airfoil generator
 * Implement generator for for NACA 6-digit series (etc.) and user input
 
+* Support for NACA 6-series

@@ -21,7 +21,7 @@
 # * Aaron Dettmann
 
 """
-Provides a class to create and modify an airfoil object
+Provides tools to create and modify airfoil objects
 
 Developed for Airinnova AB, Stockholm, Sweden.
 """
@@ -36,6 +36,8 @@ import matplotlib.pyplot as plt
 
 
 class NACADefintionError(Exception):
+    """Raised when the NACA identifier number is not valid"""
+
     pass
 
 
@@ -46,11 +48,11 @@ class Airfoil:
         Main constructor method
 
         Args:
-            :upper: (array) 2xn array with x and y coodinates of the upper side
-            :lower: (array) 2xn array with x and y coodinates of the lower side
+            :upper: 2 x N array with x- and y-coordinates of the upper side
+            :lower: 2 x N array with x- and y-coordinates of the lower side
 
         Note:
-            * During initialisation the data points are automatically ordered
+            * During initialisation data points are automatically ordered
               and normalised if necessary.
         """
 
@@ -73,16 +75,17 @@ class Airfoil:
     @classmethod
     def NACA4(cls, naca_digits, n_points=100):
         """
-        Create an airfoil object from a NACS 4-digit series definition.
+        Create an airfoil object from a NACA 4-digit series definition
 
-        This is an alternative constructor method.
+        Note:
+            * This is an alternative constructor method
 
         Args:
-            :naca_digits: (str) e.g. '4412'
-            :points: (int) total number of points used to create the airfoil
+            :naca_digits: String like '4412'
+            :points: Total number of points used to create the airfoil
 
         Returns:
-            :airfoil: new airfoil instance
+            :airfoil: New airfoil instance
         """
 
         re_4digits = re.compile("^\d{4}$")
@@ -100,23 +103,24 @@ class Airfoil:
     @classmethod
     def morph_new_from_two_foils(cls, airfoil1, airfoil2, eta, n_points):
         """
-        Create a new airfoil object from a linear interpolation between two
-        airfoil objects.
+        Create an airfoil object from a linear interpolation between two
+        airfoil objects
 
-        This is an alternative constructor method.
+        Note:
+            * This is an alternative constructor method
 
         Args:
-            :airfoil1: (obj) airfoil object at eta = 0
-            :airfoil2: (obj) airfoil object at eta = 1
-            :eta: (float) eta position where eta = [0, 1]
-            :n_points: (int) number of points for new airfoil object
+            :airfoil1: Airfoil object at eta = 0
+            :airfoil2: Airfoil object at eta = 1
+            :eta: Relative position where eta = [0, 1]
+            :n_points: Number of points for new airfoil object
 
         Returns:
-            :airfoil: new airfoil instance
+            :airfoil: New airfoil instance
         """
 
-        if 0 > eta > 1:
-            raise ValueError("eta must be in range [0,1], given eta is {:f}".format(float(eta)))
+        if not 0 <= eta <= 1:
+            raise ValueError("'eta' must be in range [0,1], given eta is {float(eta):.3f}")
 
         xsi = np.linspace(0, 1, n_points)
 
@@ -134,18 +138,18 @@ class Airfoil:
     @property
     def all_points(self):
         """
-        Returns a single 2xn array with x and y coordinates in separate columns.
+        Returns a single 2 x N array with x and y-coordinates in separate columns
         """
 
-        all_points = np.array(
-                [np.concatenate((self.x_upper, self.x_lower)),
-                 np.concatenate((self.y_upper, self.y_lower))])
-
+        all_points = np.array([
+            np.concatenate((self.x_upper, self.x_lower)),
+            np.concatenate((self.y_upper, self.y_lower))
+        ])
         return all_points
 
     def _order_data_points(self):
         """
-        Order the data points so that coordinate start from 0
+        Order the data points so that x-coordinate starts at 0
         """
 
         if self.x_upper[0] > self.x_upper[-1]:
@@ -170,17 +174,32 @@ class Airfoil:
 
     def interpolate_y(self, xsi):
         """
-        Get the upper and lower y-coordinates of the airfoil for a given range
-        of x (=xsi) values.
+        Get upper and lower y-coordinates for a given range of x (=xsi) values
 
-        The upper and lower coordinates are computed using a cubic spline
-        interpolation.
+        Note:
+            * The upper and lower coordinates are computed using a cubic spline
+              interpolation
+
+        Args:
+            :xsi: Relative chordwise coordinate ranging from 0 to 1
         """
 
-        y_upper = interp1d(self.x_upper, self.y_upper,
-                           kind='cubic', bounds_error=False, fill_value="extrapolate")
-        y_lower = interp1d(self.x_lower, self.y_lower,
-                           kind='cubic', bounds_error=False, fill_value="extrapolate")
+        y_upper = interp1d(
+            self.x_upper,
+            self.y_upper,
+            kind='cubic',
+            bounds_error=False,
+            fill_value="extrapolate"
+        )
+
+        y_lower = interp1d(
+            self.x_lower,
+            self.y_lower,
+            kind='cubic',
+            bounds_error=False,
+            fill_value="extrapolate"
+        )
+
         return y_upper(xsi), y_lower(xsi)
 
 ###################
@@ -209,7 +228,7 @@ class Airfoil:
 
     def plot(self, *args, plot_for_seconds=None):
         """
-        Plot the airfoil and camber line.
+        Plot the airfoil and camber line
         """
 
         points = 'points'
@@ -241,12 +260,15 @@ class Airfoil:
 
     def camber_line(self, xsi):
         """
-        Compute the camber line (method 1).
+        Compute the camber line
 
         Method 1: y_camber = (y_upper + y_lower)/2
 
         Args:
-            :xsi: relative chordwise coordinate ranging from 0 to 1
+            :xsi: Relative chordwise coordinate ranging from 0 to 1
+
+        Returns:
+            :camber_line: y-coordinates at given xsi positions
         """
 
         y_upper, y_lower = self.interpolate_y(xsi)
@@ -257,7 +279,10 @@ class Airfoil:
         Compute the camber line angle
 
         Args:
-            :xsi: relative chordwise coordinate ranging from 0 to 1
+            :xsi: Relative chordwise coordinate ranging from 0 to 1
+
+        Returns:
+            :theta: Camber line angle at given xsi positions
         """
 
     ########################
@@ -284,13 +309,12 @@ class MorphAirfoil:
 
     def __init__(self, airfoil1, airfoil2, n_points=100):
         """
-        Wrapper class which which can return a morphed airfoil object at a
-        specified eta position.
+        Wrapper class that returns a morphed airfoil at specified eta position
 
         Attributes:
-            :airfoil1: (obj) airfoil object at eta = 0
-            :airfoil2: (obj) airfoil object at eta = 1
-            :n_points: (int) number of points for new airfoil object
+            :airfoil1: Airfoil object at eta = 0
+            :airfoil2: Airfoil object at eta = 1
+            :n_points: Number of points for new airfoil object
         """
 
         self.airfoil1 = airfoil1
@@ -308,17 +332,27 @@ class MorphAirfoil:
             :morphed_airfoil: (obj) interpolated airfoil object at the given eta position
         """
 
-        return Airfoil.morph_new_from_two_foils(self.airfoil1,
-                                                self.airfoil2,
-                                                eta, self.n_points)
+        return Airfoil.morph_new_from_two_foils(
+            self.airfoil1,
+            self.airfoil2,
+            eta=eta,
+            n_point=self.n_points
+        )
 
 
 def gen_NACA4_airfoil(p, m, xx, n_points):
     """
-    Generate the upper and lower points for a NACA 4 airfoil
+    Generate upper and lower points for a NACA 4 airfoil
 
     Args:
-        :TODO:
+        :p:
+        :m:
+        :xx:
+        :n_points:
+
+    Returns:
+        :upper: 2 x N array with x- and y-coordinates of the upper side
+        :lower: 2 x N array with x- and y-coordinates of the lower side
     """
 
     def yt(xx, xsi):
