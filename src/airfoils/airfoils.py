@@ -330,7 +330,7 @@ class MorphAirfoil:
             self.airfoil1,
             self.airfoil2,
             eta=eta,
-            n_point=self.n_points
+            n_points=self.n_points
         )
 
 
