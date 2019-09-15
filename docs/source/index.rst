@@ -6,7 +6,23 @@ Welcome to |name|'s documentation!
     :width: 250 px
     :scale: 100 %
 
-*Airfoils* is a small Python library for object-oriented airfoil modelling. Airfoil objects can be imported from files. Airfoil definitions hosted on the `UIUC Airfoil Coordinates Database <https://m-selig.ae.illinois.edu/ads/coord_database.html>`_ are supported. Alternatively, airfoil objects can be instantiated from a NACA-4-series definition.
+*Airfoils* is a small *Python* library for object-oriented airfoil modelling. This library provides tools to query geometric information about arbitrary airfoils. An airfoil object is defined by upper and a lower surface coordinates.
+
+Airfoil objects can be imported from files. Airfoil definitions hosted on the `UIUC Airfoil Coordinates Database <https://m-selig.ae.illinois.edu/ads/coord_database.html>`_ are fully supported. Alternatively, airfoil objects can be instantiated from a NACA-4-series definition.
+
+**Features**
+
+* Interpolation of airfoils coordinates
+
+    * Surface coordinates
+    * Camberline coordinates
+    * Chordline coordinates
+
+* Linear interpolation between two different airfoils (*MorphAirfoil*)
+
+    * Computation of normal vectors
+
+* Plotting of airfoils
 
 Example
 -------
