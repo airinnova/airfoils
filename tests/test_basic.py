@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+
 import numpy as np
 import pytest
 
@@ -95,3 +97,31 @@ def test_morph_new_from_two_foils(airfoil):
     for wrong_eta in wrong_eta_values:
         with pytest.raises(ValueError):
             Airfoil.morph_new_from_two_foils(airfoil1=airfoil, airfoil2=airfoil, eta=wrong_eta, n_points=100)
+
+
+def test_reordering():
+    """
+    Coordinates sorted from trailing edge to leading edge have to be reordered
+    """
+
+    x_upper = X_UPPER[::-1]
+    y_upper = Y_UPPER[::-1]
+    x_lower = X_LOWER[::-1]
+    y_lower = Y_LOWER[::-1]
+
+    Airfoil((x_upper, y_upper), (x_lower, y_lower))
+
+
+def test_plotting():
+    """
+    Test plotting function
+    """
+
+    settings = {
+        'points': True,
+        'camber': True,
+        'file_name': 'test.png',
+    }
+
+    file_name = Airfoil.NACA4('2412').plot(save=True, settings=settings)
+    assert os.path.isfile(file_name)

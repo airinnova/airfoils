@@ -26,7 +26,8 @@ Provides tools to create and modify airfoil objects
 Developed for Airinnova AB, Stockholm, Sweden.
 """
 
-
+from datetime import datetime
+import os
 import re
 
 import numpy as np
@@ -184,6 +185,10 @@ class Airfoil:
             :xsi: Relative chordwise coordinate ranging from 0 to 1
         """
 
+        # Note: scipy's CubicSpline() interpolation fails because the x-values
+        # must be strictly increasing; this is not always given, especially at
+        # the nose where the curvature can be relatively high
+
         y_upper = interp1d(
             self.x_upper,
             self.y_upper,
@@ -202,33 +207,30 @@ class Airfoil:
 
         return y_upper(xsi), y_lower(xsi)
 
-###################
-        # Note: scipy's CubicSpline() interpolation fails because the x-values
-        # must be strictly increasing; this is not always given, especially at
-        # the nose where the curvature can be relatively high
-
-        # y_upper = CubicSpline(self.x_upper, self.y_upper)
-        # y_lower = CubicSpline(self.x_lower, self.y_lower)
-        # return y_upper(xsi), y_lower(xsi)
-###################
-
-###################
-        # Note: accuracy problems
-        # s=0: enforce curve to pass through all support points
-        # per=False: do not consider curve as periodic
-
-        # tck_y_upper, _ = splprep([self.x_upper, self.y_upper], task=0, s=0, per=False)
-        # tck_y_lower, _ = splprep([self.x_lower, self.y_lower], task=0, s=0, per=False)
-
-        # _, y_upper = splev(xsi, tck_y_upper)
-        # _, y_lower = splev(xsi, tck_y_lower)
-
-        # return y_upper, y_lower
-###################
-
-    def plot(self, *args, plot_for_seconds=None):
+    def plot(self, *, show=True, save=False, settings={}):
         """
         Plot the airfoil and camber line
+
+        Note:
+            * 'show' and/or 'save' must be True
+
+        Args:
+            :show: (bool) Create an interactive plot
+            :save: (bool) Save plot to file
+            :settings: (bool) Plot settings
+
+        Plot settings:
+            * Plot settings must be a dictionary
+            * Allowed keys:
+
+            'points': (bool) ==> Plot coordinate points
+            'camber': (bool) ==> Plot camber
+            'chord': (bool) ==> Plot chord
+            'path': (str) ==> Output path (directory path, must exists)
+            'file_name': (str) ==> Full file name
+
+        Returns:
+            None or 'file_name' (full path) if 'save' is True
         """
 
         fig = plt.figure()
@@ -242,15 +244,32 @@ class Airfoil:
         ax.plot(self.x_upper, self.y_upper, '-', color='blue')
         ax.plot(self.x_lower, self.y_lower, '-', color='green')
 
-        if 'points' in args:
+        if settings.get('points', False):
             ax.plot(self.all_points[0, :], self.all_points[1, :], '.', color='grey')
 
-        if 'camber' in args:
+        if settings.get('camber', False):
             xsi = np.linspace(0, 1, 100)
             ax.plot(xsi, self.camber_line(xsi), '--', color='red')
 
+        if settings.get('chord', False):
+            pass
+
         plt.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.98, wspace=None, hspace=None)
-        plt.show()
+
+        if show:
+            fig.show()
+
+        if save:
+            path = settings.get('path', '.')
+            file_name = settings.get('file_name', False)
+
+            if not file_name:
+                now = datetime.strftime(datetime.now(), format='%F_%H%M%S')
+                file_type = 'png'
+                file_name = f'airfoils_{now}.{file_type}'
+
+            fig.savefig(os.path.join(path, file_name))
+            return file_name
 
     def camber_line(self, xsi):
         """
