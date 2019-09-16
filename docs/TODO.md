@@ -13,3 +13,6 @@
 
 ## Documentation
 * Add doc for airfoil import from files
+
+## Airfoil class
+* Shift data if `x_lower`/`x_upper` don't start at 0?

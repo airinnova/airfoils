@@ -57,11 +57,13 @@ class Airfoil:
               and normalised if necessary.
         """
 
-        self.x_upper = upper[0]
-        self.y_upper = upper[1]
+        # Always use Numpy arrays
+        upper = np.array(upper, dtype=float)
+        lower = np.array(lower, dtype=float)
 
-        self.x_lower = lower[0]
-        self.y_lower = lower[1]
+        # Unpack coordinates
+        self._x_upper, self._y_upper = upper
+        self._x_lower, self._y_lower = lower
 
         self.norm_factor = 1
         self._order_data_points()
@@ -72,6 +74,22 @@ class Airfoil:
 
     def __repr__(self):
         return self.__class__.__name__ + "(upper, lower)"
+
+    @property
+    def x_upper(self):
+        return self._x_upper
+
+    @property
+    def y_upper(self):
+        return self._y_upper
+
+    @property
+    def x_lower(self):
+        return self._x_lower
+
+    @property
+    def y_lower(self):
+        return self._y_lower
 
     @classmethod
     def NACA4(cls, naca_digits, n_points=100):
@@ -154,12 +172,12 @@ class Airfoil:
         """
 
         if self.x_upper[0] > self.x_upper[-1]:
-            self.x_upper = np.flipud(self.x_upper)
-            self.y_upper = np.flipud(self.y_upper)
+            self._x_upper = np.flipud(self.x_upper)
+            self._y_upper = np.flipud(self.y_upper)
 
         if self.x_lower[0] > self.x_lower[-1]:
-            self.x_lower = np.flipud(self.x_lower)
-            self.y_lower = np.flipud(self.y_lower)
+            self._x_lower = np.flipud(self.x_lower)
+            self._y_lower = np.flipud(self.y_lower)
 
     def _normalise_data_points(self):
         """
@@ -168,10 +186,10 @@ class Airfoil:
 
         self.norm_factor = abs(self.x_upper[-1] - self.x_upper[0])
 
-        self.x_upper /= self.norm_factor
-        self.y_upper /= self.norm_factor
-        self.x_lower /= self.norm_factor
-        self.y_lower /= self.norm_factor
+        self._x_upper /= self.norm_factor
+        self._y_upper /= self.norm_factor
+        self._x_lower /= self.norm_factor
+        self._y_lower /= self.norm_factor
 
     def interpolate_y(self, xsi):
         """
@@ -257,7 +275,7 @@ class Airfoil:
         plt.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.98, wspace=None, hspace=None)
 
         if show:
-            fig.show()
+            plt.show()
 
         if save:
             path = settings.get('path', '.')
