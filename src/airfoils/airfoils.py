@@ -35,6 +35,8 @@ from scipy.interpolate import interp1d
 from scipy.misc import derivative
 import matplotlib.pyplot as plt
 
+POINTS_AIRFOIL = 200
+
 
 class NACADefintionError(Exception):
     """Raised when the NACA identifier number is not valid"""
@@ -69,30 +71,37 @@ class Airfoil:
         self._order_data_points()
         self._normalise_data_points()
 
+        # Make interpolation functions for 'y_upper' and 'y_lower'
+        self._y_upper_interp = interp1d(
+            self._x_upper,
+            self._y_upper,
+            kind='cubic',
+            bounds_error=False,
+            fill_value="extrapolate"
+        )
+
+        self._y_lower_interp = interp1d(
+            self._x_lower,
+            self._y_lower,
+            kind='cubic',
+            bounds_error=False,
+            fill_value="extrapolate"
+        )
+
     def __str__(self):
         return self.__class__.__name__ + "(upper, lower)"
 
     def __repr__(self):
         return self.__class__.__name__ + "(upper, lower)"
 
-    @property
-    def x_upper(self):
-        return self._x_upper
+    def y_upper(self, xsi):
+        return self._y_upper_interp(xsi)
 
-    @property
-    def y_upper(self):
-        return self._y_upper
-
-    @property
-    def x_lower(self):
-        return self._x_lower
-
-    @property
-    def y_lower(self):
-        return self._y_lower
+    def y_lower(self, xsi):
+        return self._y_lower_interp(xsi)
 
     @classmethod
-    def NACA4(cls, naca_digits, n_points=100):
+    def NACA4(cls, naca_digits, n_points=POINTS_AIRFOIL):
         """
         Create an airfoil object from a NACA 4-digit series definition
 
@@ -139,12 +148,14 @@ class Airfoil:
         """
 
         if not 0 <= eta <= 1:
-            raise ValueError("'eta' must be in range [0,1], given eta is {float(eta):.3f}")
+            raise ValueError(f"'eta' must be in range [0,1], given eta is {float(eta):.3f}")
 
         xsi = np.linspace(0, 1, n_points)
 
-        y_upper_af1, y_lower_af1 = airfoil1.interpolate_y(xsi)
-        y_upper_af2, y_lower_af2 = airfoil2.interpolate_y(xsi)
+        y_upper_af1 = airfoil1.y_upper(xsi)
+        y_lower_af1 = airfoil1.y_lower(xsi)
+        y_upper_af2 = airfoil2.y_upper(xsi)
+        y_lower_af2 = airfoil2.y_lower(xsi)
 
         y_upper_new = y_upper_af1*(1 - eta) + y_upper_af2*eta
         y_lower_new = y_lower_af1*(1 - eta) + y_lower_af2*eta
@@ -161,8 +172,8 @@ class Airfoil:
         """
 
         all_points = np.array([
-            np.concatenate((self.x_upper, self.x_lower)),
-            np.concatenate((self.y_upper, self.y_lower))
+            np.concatenate((self._x_upper, self._x_lower)),
+            np.concatenate((self._y_upper, self._y_lower))
         ])
         return all_points
 
@@ -171,59 +182,25 @@ class Airfoil:
         Order the data points so that x-coordinate starts at 0
         """
 
-        if self.x_upper[0] > self.x_upper[-1]:
-            self._x_upper = np.flipud(self.x_upper)
-            self._y_upper = np.flipud(self.y_upper)
+        if self._x_upper[0] > self._x_upper[-1]:
+            self._x_upper = np.flipud(self._x_upper)
+            self._y_upper = np.flipud(self._y_upper)
 
-        if self.x_lower[0] > self.x_lower[-1]:
-            self._x_lower = np.flipud(self.x_lower)
-            self._y_lower = np.flipud(self.y_lower)
+        if self._x_lower[0] > self._x_lower[-1]:
+            self._x_lower = np.flipud(self._x_lower)
+            self._y_lower = np.flipud(self._y_lower)
 
     def _normalise_data_points(self):
         """
         Normalise data points so that x ranges from 0 to 1
         """
 
-        self.norm_factor = abs(self.x_upper[-1] - self.x_upper[0])
+        self.norm_factor = abs(self._x_upper[-1] - self._x_upper[0])
 
         self._x_upper /= self.norm_factor
         self._y_upper /= self.norm_factor
         self._x_lower /= self.norm_factor
         self._y_lower /= self.norm_factor
-
-    def interpolate_y(self, xsi):
-        """
-        Get upper and lower y-coordinates for a given range of x (=xsi) values
-
-        Note:
-            * The upper and lower coordinates are computed using a cubic spline
-              interpolation
-
-        Args:
-            :xsi: Relative chordwise coordinate ranging from 0 to 1
-        """
-
-        # Note: scipy's CubicSpline() interpolation fails because the x-values
-        # must be strictly increasing; this is not always given, especially at
-        # the nose where the curvature can be relatively high
-
-        y_upper = interp1d(
-            self.x_upper,
-            self.y_upper,
-            kind='cubic',
-            bounds_error=False,
-            fill_value="extrapolate"
-        )
-
-        y_lower = interp1d(
-            self.x_lower,
-            self.y_lower,
-            kind='cubic',
-            bounds_error=False,
-            fill_value="extrapolate"
-        )
-
-        return y_upper(xsi), y_lower(xsi)
 
     def plot(self, *, show=True, save=False, settings={}):
         """
@@ -259,14 +236,14 @@ class Airfoil:
         ax.axis('equal')
         ax.grid()
 
-        ax.plot(self.x_upper, self.y_upper, '-', color='blue')
-        ax.plot(self.x_lower, self.y_lower, '-', color='green')
+        ax.plot(self._x_upper, self._y_upper, '-', color='blue')
+        ax.plot(self._x_lower, self._y_lower, '-', color='green')
 
         if settings.get('points', False):
             ax.plot(self.all_points[0, :], self.all_points[1, :], '.', color='grey')
 
         if settings.get('camber', False):
-            xsi = np.linspace(0, 1, 100)
+            xsi = np.linspace(0, 1, int(POINTS_AIRFOIL/2))
             ax.plot(xsi, self.camber_line(xsi), '--', color='red')
 
         if settings.get('chord', False):
@@ -302,8 +279,7 @@ class Airfoil:
             :camber_line: y-coordinates at given xsi positions
         """
 
-        y_upper, y_lower = self.interpolate_y(xsi)
-        return (y_upper + y_lower)/2
+        return (self.y_upper(xsi) + self.y_lower(xsi))/2
 
     def camber_line_angle(self, xsi):
         """
@@ -338,7 +314,7 @@ class Airfoil:
 
 class MorphAirfoil:
 
-    def __init__(self, airfoil1, airfoil2, n_points=100):
+    def __init__(self, airfoil1, airfoil2, n_points=POINTS_AIRFOIL):
         """
         Wrapper class that returns a morphed airfoil at specified eta position
 

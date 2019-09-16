@@ -55,9 +55,10 @@ def test_interpolate_y(airfoil):
     Test 'interpolate_y' method
     """
 
-    y_up, y_low = airfoil.interpolate_y(xsi=X_UPPER[1])
-    assert y_up == Y_UPPER[1]
-    assert y_low == Y_LOWER[1]
+    y_upper = airfoil.y_upper(xsi=X_UPPER[1])
+    y_lower = airfoil.y_lower(xsi=X_UPPER[1])
+    assert y_upper == Y_UPPER[1]
+    assert y_lower == Y_LOWER[1]
 
 
 def test_camber_line(airfoil):

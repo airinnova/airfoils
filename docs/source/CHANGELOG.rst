@@ -4,6 +4,20 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.2.0] -- 2019-09-16
+---------------------
+
+Changed
+~~~~~~~
+
+* Create interpolator objects for `y_upper` and `y_lower` in `Airfoil.__init__()`
+    * Generally more efficient since `y_upper` and `y_lower` are queried a lot
+
+Removed
+~~~~~~~
+
+* Removed `Airfoil.interpolate_y()` (replaced by methods `y_upper()` and `y_lower()`)
+
 [0.1.1] -- 2019-09-15
 ---------------------
 
@@ -31,12 +45,3 @@ Fixed
 ---------------------
 
 * First public release
-
-Added
-~~~~~
-
-Removed
-~~~~~~~
-
-Changed
-~~~~~~~
