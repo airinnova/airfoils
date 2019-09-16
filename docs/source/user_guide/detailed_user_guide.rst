@@ -1,4 +1,4 @@
-.. _detailed_user_guide:
+.. _sec_detailed_user_guide:
 
 User guide
 ==========
@@ -18,9 +18,7 @@ Airfoils are geometric objects that can be described in a *x-y-plane*. Every air
 
 .. seealso::
 
-    For general airfoil information and nomenclature see:
-
-    * https://en.wikipedia.org/wiki/Airfoil
+    For general airfoil information and nomenclature see [WiAi19]_.
 
 Creating an airfoil object
 --------------------------

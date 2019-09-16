@@ -17,4 +17,7 @@
 * Add doc for airfoil import from files
 
 ## Airfoil class
+* In `__init__()` check that data in `upper` and `lower` has correct format
+    * list/tuple/Numpy array okay
+    * At least three data points in `upper` and `lower`
 * Shift data if `x_lower`/`x_upper` don't start at 0?

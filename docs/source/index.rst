@@ -60,6 +60,18 @@ Example
    user_guide/detailed_user_guide
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Links
+
+   references
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contributing
+
+   contribute
+
+.. toctree::
    :maxdepth: 1
    :caption: Changelog
 
