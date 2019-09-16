@@ -67,6 +67,7 @@ class Airfoil:
         self._x_upper, self._y_upper = upper
         self._x_lower, self._y_lower = lower
 
+        # Process coordinates
         self.norm_factor = 1
         self._order_data_points()
         self._normalise_data_points()
@@ -94,11 +95,11 @@ class Airfoil:
     def __repr__(self):
         return self.__class__.__name__ + "(upper, lower)"
 
-    def y_upper(self, xsi):
-        return self._y_upper_interp(xsi)
+    def y_upper(self, x):
+        return self._y_upper_interp(x)
 
-    def y_lower(self, xsi):
-        return self._y_lower_interp(xsi)
+    def y_lower(self, x):
+        return self._y_lower_interp(x)
 
     @classmethod
     def NACA4(cls, naca_digits, n_points=POINTS_AIRFOIL):
@@ -150,18 +151,18 @@ class Airfoil:
         if not 0 <= eta <= 1:
             raise ValueError(f"'eta' must be in range [0,1], given eta is {float(eta):.3f}")
 
-        xsi = np.linspace(0, 1, n_points)
+        x = np.linspace(0, 1, n_points)
 
-        y_upper_af1 = airfoil1.y_upper(xsi)
-        y_lower_af1 = airfoil1.y_lower(xsi)
-        y_upper_af2 = airfoil2.y_upper(xsi)
-        y_lower_af2 = airfoil2.y_lower(xsi)
+        y_upper_af1 = airfoil1.y_upper(x)
+        y_lower_af1 = airfoil1.y_lower(x)
+        y_upper_af2 = airfoil2.y_upper(x)
+        y_lower_af2 = airfoil2.y_lower(x)
 
         y_upper_new = y_upper_af1*(1 - eta) + y_upper_af2*eta
         y_lower_new = y_lower_af1*(1 - eta) + y_lower_af2*eta
 
-        upper = np.array([xsi, y_upper_new])
-        lower = np.array([xsi, y_lower_new])
+        upper = np.array([x, y_upper_new])
+        lower = np.array([x, y_lower_new])
 
         return cls(upper, lower)
 
@@ -243,8 +244,8 @@ class Airfoil:
             ax.plot(self.all_points[0, :], self.all_points[1, :], '.', color='grey')
 
         if settings.get('camber', False):
-            xsi = np.linspace(0, 1, int(POINTS_AIRFOIL/2))
-            ax.plot(xsi, self.camber_line(xsi), '--', color='red')
+            x = np.linspace(0, 1, int(POINTS_AIRFOIL/2))
+            ax.plot(x, self.camber_line(x), '--', color='red')
 
         if settings.get('chord', False):
             pass
@@ -266,42 +267,42 @@ class Airfoil:
             fig.savefig(os.path.join(path, file_name))
             return file_name
 
-    def camber_line(self, xsi):
+    def camber_line(self, x):
         """
         Compute the camber line
 
         Method 1: y_camber = (y_upper + y_lower)/2
 
         Args:
-            :xsi: Relative chordwise coordinate ranging from 0 to 1
+            :x: Relative chordwise coordinate ranging from 0 to 1
 
         Returns:
-            :camber_line: y-coordinates at given xsi positions
+            :camber_line: y-coordinates at given x positions
         """
 
-        return (self.y_upper(xsi) + self.y_lower(xsi))/2
+        return (self.y_upper(x) + self.y_lower(x))/2
 
-    def camber_line_angle(self, xsi):
+    def camber_line_angle(self, x):
         """
         Compute the camber line angle
 
         Args:
-            :xsi: Relative chordwise coordinate ranging from 0 to 1
+            :x: Relative chordwise coordinate ranging from 0 to 1
 
         Returns:
-            :theta: Camber line angle at given xsi positions
+            :theta: Camber line angle at given x positions
         """
 
     ########################
-        xsi = np.asarray(xsi)
+        x = np.asarray(x)
         scalar_input = False
 
-        if xsi.ndim == 0:
-            xsi = xsi[None]  # Make 1D array
+        if x.ndim == 0:
+            x = x[None]  # Make 1D array
             scalar_input = True
     ########################
 
-        dydx = derivative(self.camber_line, xsi, dx=1e-12)
+        dydx = derivative(self.camber_line, x, dx=1e-12)
         theta = np.rad2deg(np.arctan(dydx))
         theta = np.array([0 if abs(x) > 50 else x for x in theta])
 

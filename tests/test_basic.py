@@ -55,8 +55,8 @@ def test_interpolate_y(airfoil):
     Test 'interpolate_y' method
     """
 
-    y_upper = airfoil.y_upper(xsi=X_UPPER[1])
-    y_lower = airfoil.y_lower(xsi=X_UPPER[1])
+    y_upper = airfoil.y_upper(x=X_UPPER[1])
+    y_lower = airfoil.y_lower(x=X_UPPER[1])
     assert y_upper == Y_UPPER[1]
     assert y_lower == Y_LOWER[1]
 

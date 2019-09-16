@@ -12,6 +12,7 @@ Changed
 
 * Create interpolator objects for `y_upper` and `y_lower` in `Airfoil.__init__()`
     * Generally more efficient since `y_upper` and `y_lower` are queried a lot
+* Renamed variable `xsi` in module 'airfoils' to `x`
 
 Removed
 ~~~~~~~
