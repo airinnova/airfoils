@@ -117,7 +117,7 @@ class Airfoil:
             :airfoil: New airfoil instance
         """
 
-        re_4digits = re.compile("^\d{4}$")
+        re_4digits = re.compile(r"^\d{4}$")
 
         if re_4digits.match(naca_digits):
             p = float(naca_digits[0])/10

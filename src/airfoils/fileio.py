@@ -113,8 +113,8 @@ def _import_format_1(file_name):
         :lower: Lower airfoil coordinates
     """
 
-    line_with_text = re.compile("^[a-z]", flags=re.IGNORECASE)
-    line_with_not_number = re.compile("[^\+\-\d\.]")  # +,-,.,0,1,2,...,8,9
+    line_with_text = re.compile(r"^[a-z]", flags=re.IGNORECASE)
+    line_with_not_number = re.compile(r"[^\+\-\d\.]")  # +,-,.,0,1,2,...,8,9
 
     x = []
     y = []
