@@ -4,6 +4,14 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.2.1] -- 2020-01-05
+---------------------
+
+Fixed
+~~~~~
+
+* Fixed deprecation warning for `re` library
+
 [0.2.0] -- 2019-09-16
 ---------------------
 
