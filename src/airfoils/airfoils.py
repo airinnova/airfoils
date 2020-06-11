@@ -72,6 +72,14 @@ class Airfoil:
         self._order_data_points()
         self._normalise_data_points()
 
+        # Remove duplicate points from coordinate vectors. x-values must be
+        # unique. Values passed to iterp1d() must be monotonically increasing.
+        self._x_upper, idx_keep = np.unique(self._x_upper, return_index=True)
+        self._y_upper = self._y_upper[idx_keep]
+
+        self._x_lower, idx_keep = np.unique(self._x_lower, return_index=True)
+        self._y_lower = self._y_lower[idx_keep]
+
         # Make interpolation functions for 'y_upper' and 'y_lower'
         self._y_upper_interp = interp1d(
             self._x_upper,
