@@ -4,7 +4,6 @@ Welcome to |name|'s documentation!
 .. image:: _static/images/logo.svg
     :alt: Airfoils
     :width: 250 px
-    :scale: 100 %
 
 *Airfoils* is a small *Python* library for object-oriented airfoil modelling. The library provides tools to easily instantiate airfoil objects and to query geometric information. An airfoil object is defined by upper and a lower surface coordinates.
 
