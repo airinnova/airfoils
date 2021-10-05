@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import setuptools
+from pathlib import Path
 import os
+import setuptools
 
-from src.airfoils.__version__ import __version__
+here = Path(__file__).parent.resolve()
+# See also: https://packaging.python.org/guides/single-sourcing-package-version/
+version = {}
+exec(here.joinpath("src", "airfoils", "__version__.py").read_text(), version)
 
 # See also: https://github.com/kennethreitz/setup.py/blob/master/setup.py
 
 NAME = 'airfoils'
-VERSION = __version__
+VERSION = version['__version__']
 AUTHOR = 'Aaron Dettmann'
 EMAIL = 'dettmann@kth.se'
 DESCRIPTION = 'Airfoils (aerofoils)'
@@ -21,14 +25,9 @@ REQUIRED = [
     'matplotlib',
 ]
 README = 'README.rst'
-PACKAGE_DIR = 'src/'
+PACKAGE_DIR = 'src'
 LICENSE = 'Apache License 2.0'
 SCRIPTS = []
-
-here = os.path.abspath(os.path.dirname(__file__))
-
-with open(os.path.join(here, README), "r") as fp:
-    long_description = fp.read()
 
 setuptools.setup(
     name=NAME,
@@ -36,7 +35,7 @@ setuptools.setup(
     author=AUTHOR,
     author_email=EMAIL,
     description=DESCRIPTION,
-    long_description=long_description,
+    long_description=here.joinpath(README).read_text(),
     url=URL,
     include_package_data=True,
     scripts=SCRIPTS,
@@ -58,4 +57,9 @@ setuptools.setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Physics",
     ],
+    project_urls={
+        'Documentation': 'https://airfoils.readthedocs.io/',
+        'Source': URL,
+        'Tracker': URL + 'issues',
+    },
 )

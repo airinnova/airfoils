@@ -3,15 +3,13 @@
 
 import pytest
 
-from airfoils import Airfoil, NACADefintionError
+from airfoils import Airfoil
 
 
 def test_constructor_NACA4():
     """
     Test NACA 4-series constructor
     """
-
-    naca1234 = Airfoil.NACA4('1234')
 
     wrong_naca_IDs = [
         'very_wrong',
@@ -20,7 +18,7 @@ def test_constructor_NACA4():
     ]
 
     for wrong_naca_ID in wrong_naca_IDs:
-        with pytest.raises(NACADefintionError):
+        with pytest.raises(ValueError):
             Airfoil.NACA4(wrong_naca_ID)
 
 

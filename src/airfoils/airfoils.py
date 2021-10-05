@@ -17,38 +17,33 @@
 # limitations under the License.
 # ----------------------------------------------------------------------
 
-# Authors:
-# * Aaron Dettmann
-
 """
-Provides tools to create and modify airfoil objects
-
-Developed for Airinnova AB, Stockholm, Sweden.
+Provides tools to create and modify airfoils
 """
 
 from datetime import datetime
 import os
 import re
 
-import numpy as np
 from scipy.interpolate import interp1d
 from scipy.misc import derivative
 import matplotlib.pyplot as plt
+import numpy as np
 
 POINTS_AIRFOIL = 200
 
 
-class NACADefintionError(Exception):
-    """Raised when the NACA identifier number is not valid"""
-
-    pass
+# TODO:
+# (P1) Use parameterized curve x_upper(s), y_upper(s), ...
+# (P1) Fix NACA4 error, add tests...
+# (P2) Remove 'MorphAirfoil', provide simple interpolation function...
 
 
 class Airfoil:
 
     def __init__(self, upper, lower):
         """
-        Main constructor method
+        Return an airfoil from upper and lower coordinates
 
         Args:
             :upper: 2 x N array with x- and y-coordinates of the upper side
@@ -132,7 +127,7 @@ class Airfoil:
             m = float(naca_digits[1])/100
             xx = float(naca_digits[2:4])/100
         else:
-            raise NACADefintionError("Identifier not recognised as valid NACA 4 definition")
+            raise ValueError("Identifier not recognised as valid NACA 4 definition")
 
         upper, lower = gen_NACA4_airfoil(p, m, xx, n_points)
         return cls(upper, lower)
