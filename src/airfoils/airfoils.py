@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # ----------------------------------------------------------------------
-# Copyright 2017-2020 Airinnova AB and the Airfoils authors
+# Copyright 2017-2021 Airinnova AB and the Airfoils authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # ----------------------------------------------------------------------
 
 """
-Provides tools to create and modify airfoils
+Provides tools to create and modify airfoil geometries
 """
 
 from datetime import datetime
@@ -27,6 +27,7 @@ import re
 
 from scipy.interpolate import interp1d
 from scipy.misc import derivative
+from scipy.optimize import newton
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -54,6 +55,8 @@ class Airfoil:
               and normalised if necessary.
         """
 
+        # TODO: Input checks...
+
         # Always use Numpy arrays
         upper = np.array(upper, dtype=float)
         lower = np.array(lower, dtype=float)
@@ -62,6 +65,16 @@ class Airfoil:
         self._x_upper, self._y_upper = upper
         self._x_lower, self._y_lower = lower
 
+        # ----------------------------------------
+        # Parameterize upper and lower curves
+        num_upper = self._x_upper.size
+        num_lower = self._x_lower.size
+
+        # Same number of points as x_upper, x_lower
+        self._t_upper = np.arange(0, 1, 1/num_upper)
+        self._t_lower = np.arange(0, 1, 1/num_lower)
+        # ----------------------------------------
+
         # Process coordinates
         self.norm_factor = 1
         self._order_data_points()
@@ -69,28 +82,29 @@ class Airfoil:
 
         # Remove duplicate points from coordinate vectors. x-values must be
         # unique. Values passed to iterp1d() must be monotonically increasing.
+        # TODO: Necessary?
         self._x_upper, idx_keep = np.unique(self._x_upper, return_index=True)
         self._y_upper = self._y_upper[idx_keep]
+        self._t_upper = self._t_upper[idx_keep]
 
         self._x_lower, idx_keep = np.unique(self._x_lower, return_index=True)
         self._y_lower = self._y_lower[idx_keep]
+        self._t_lower = self._t_lower[idx_keep]
 
-        # Make interpolation functions for 'y_upper' and 'y_lower'
-        self._y_upper_interp = interp1d(
-            self._x_upper,
-            self._y_upper,
-            kind='cubic',
-            bounds_error=False,
-            fill_value="extrapolate"
-        )
+        def _get_interp(x, t):
+            return interp1d(
+                    x,
+                    t,
+                    kind='cubic',
+                    bounds_error=False,
+                    fill_value="extrapolate"
+                )
 
-        self._y_lower_interp = interp1d(
-            self._x_lower,
-            self._y_lower,
-            kind='cubic',
-            bounds_error=False,
-            fill_value="extrapolate"
-        )
+        # Make parametric interpolation functions for 'y_upper' and 'y_lower'
+        self._x_upper_interp = _get_interp(self._x_upper, self._t_upper)
+        self._y_upper_interp = _get_interp(self._y_upper, self._t_upper)
+        self._x_lower_interp = _get_interp(self._x_lower, self._t_lower)
+        self._y_lower_interp = _get_interp(self._y_lower, self._t_lower)
 
     def __str__(self):
         return self.__class__.__name__ + "(upper, lower)"
@@ -99,10 +113,16 @@ class Airfoil:
         return self.__class__.__name__ + "(upper, lower)"
 
     def y_upper(self, x):
-        return self._y_upper_interp(x)
+        def func(t):
+            return x - self._x_upper_interp(t)
+        t = newton(func, 0)
+        return self._y_upper_interp(t)
 
     def y_lower(self, x):
-        return self._y_lower_interp(x)
+        def func(t):
+            return x - self._x_lower_interp(t)
+        t = newton(func, 0)
+        return self._y_lower_interp(t)
 
     @classmethod
     def NACA4(cls, naca_digits, n_points=POINTS_AIRFOIL):

@@ -73,6 +73,9 @@ def import_airfoil_data(file_name):
             line = line.strip()
 
             try:
+                # TODO: DeprecationWarning: string or file could not be read to
+                #       its end due to unmatched data; this will raise a
+                #       ValueError in the future.
                 data = np.fromstring(line, sep=' ')
 
                 if data[0] > 2:
@@ -80,7 +83,6 @@ def import_airfoil_data(file_name):
                 else:
                     file_format = FORMAT_1
             except:
-                # Fallback on format 1
                 file_format = FORMAT_1
 
     # ----- Try to import the file -----
